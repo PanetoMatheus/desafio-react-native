@@ -26,8 +26,8 @@ export default function RootLayout() {
   return(
    <Stack>
     <Stack.Screen name="(default)" options={{headerShown:false}} />
+    <Stack.Screen name="produto/[id]" options={{headerShown:false}} />
 
-     <Stack.Screen name="MatchDetail"  />
    </Stack>
   );
 }

@@ -1,15 +1,15 @@
 export const theme = {
     colors: {
-        background: '#454545',
-        paper: '#575757',
-        text: '#FFFFFF',
-        primary: '#ffe100',
+        background: '#f6f7f5',
+        paper: '#FFFFFF',
+        text: '#222222',
+        primary: '#1e5139',
         alert: '#ffff00',
-        primaryText: '#000000',
+        primaryText: '#FFFFFF',
         correct: '#32ca88',
         wrong: '#ff4548',
-        secondaryText: '#CCCCCC',
-        border: '#686868',
+        secondaryText: '#777777',
+        border: '#E5E7E5',
     },
 
     corners: {
