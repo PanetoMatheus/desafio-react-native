@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "desafio-mobile",
-    "slug": "desafio-mobile",
+    "name": "desafio-mobile (Paneto)",
+    "slug": "desafio-mobile (Paneto)",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -20,7 +20,8 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
     },
     "plugins": [
       "expo-font",
