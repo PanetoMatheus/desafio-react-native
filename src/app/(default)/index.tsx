@@ -6,6 +6,7 @@ import {
     StyleSheet,
     Text,
     View,
+    Button,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getProdutos } from "../../functions/api";
@@ -47,7 +48,6 @@ export default function Home() {
     return (
         <SafeAreaView style={styles.container} edges={["top"]}>
             <Header />
-
             {carregando ? (
                 <View style={styles.centro}>
                     <ActivityIndicator

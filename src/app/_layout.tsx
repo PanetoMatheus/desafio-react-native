@@ -3,6 +3,8 @@ import { useFonts } from 'expo-font';
 import { useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import "./../global.css";
+import { SQLiteProvider } from "expo-sqlite";
+import { initializeDatabase } from "./../database/migrations";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -24,10 +26,14 @@ export default function RootLayout() {
     }
 
   return(
+    <SQLiteProvider
+          databaseName="desafio-mobile.db"
+            onInit={initializeDatabase}
+    >
    <Stack>
     <Stack.Screen name="(default)" options={{headerShown:false}} />
-    <Stack.Screen name="produto/[id]" options={{headerShown:false}} />
-
+    <Stack.Screen name="produtos/[id]" options={{headerShown:false}} />
    </Stack>
+   </SQLiteProvider>
   );
 }
