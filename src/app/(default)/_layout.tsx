@@ -1,5 +1,6 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import {theme} from './../../shared/themes/Theme'
 
 export default function Layout() {
   return (
@@ -8,8 +9,8 @@ export default function Layout() {
         name="index"
         options={{
           title: "Início",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
+          tabBarIcon: ({size }) => (
+            <Ionicons name="home" size={size} color={"#1e5139"} />
           ),
         }}
       />
@@ -17,8 +18,8 @@ export default function Layout() {
         name="carrinho"
         options={{
           title: "Carrinho",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="cart" size={size} color={color} />
+          tabBarIcon: ({size }) => (
+            <Ionicons name="cart" size={size} color={"#1e5139"} />
           ),
         }}
       />
@@ -26,8 +27,8 @@ export default function Layout() {
         name="usuario"
         options={{
           title: "Usuário",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={size} color={color} />
+          tabBarIcon: ({ size }) => (
+            <Ionicons name="person" size={size} color={"#1e5139"} />
           ),
         }}
       />

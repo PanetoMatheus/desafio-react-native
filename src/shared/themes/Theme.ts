@@ -1,5 +1,4 @@
 
-
 export const theme = {
     colors:{
         background: '#454545',
@@ -29,6 +28,12 @@ export const theme = {
             bold: 'PoppinsBold',
             black: 'Inter-Black'
         }
+    },
+    icons: {
+        small: 16,
+        body: 20,
+        large: 24,
+        extraLarge: 28,
     },
 
 
