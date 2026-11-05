@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
     View,
@@ -5,24 +6,43 @@ import {
     TextInput,
     Pressable,
     StyleSheet,
+    Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
 import { theme } from "../shared/themes/Theme";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function Login() {
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
 
-    const entrar = async () => {
-        
+    const { entrar } = useAuth();
+
+    const handleEntrar = async () => {
+        if (!email.trim() || !senha.trim()) {
+            Alert.alert("Atenção", "Preencha email e senha.");
+            return;
+        }
+
+        try {
+            const sucesso = await entrar(email, senha);
+
+            if (!sucesso) {
+                Alert.alert("Erro", "Email ou senha incorretos.");
+                return;
+            }
+
+            router.replace("/");
+        } catch (error) {
+            Alert.alert("Erro", "Não foi possível realizar o login.");
+        }
     };
 
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.formulario}>
-                <Text style={styles.titulo}>
-                    Paneto's Store
-                </Text>
+                <Text style={styles.titulo}>Paneto's Store</Text>
 
                 <Text style={styles.subtitulo}>
                     Entre na sua conta
@@ -47,12 +67,16 @@ export default function Login() {
                     secureTextEntry
                 />
 
+                <Pressable style={styles.botao} onPress={handleEntrar}>
+                    <Text style={styles.botaoTexto}>Entrar</Text>
+                </Pressable>
+
                 <Pressable
-                    style={styles.botao}
-                    onPress={entrar}
+                    style={styles.botaoCadastro}
+                    onPress={() => router.push("/cadastrar")}
                 >
-                    <Text style={styles.botaoTexto}>
-                        Entrar
+                    <Text style={styles.botaoCadastroTexto}>
+                        Criar uma conta
                     </Text>
                 </Pressable>
             </View>
@@ -67,27 +91,23 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         padding: theme.spacing.large,
     },
-
     formulario: {
         backgroundColor: theme.colors.paper,
         padding: theme.spacing.extraLarge,
         borderRadius: theme.corners.large,
     },
-
     titulo: {
         fontSize: theme.fonts.sizes.extraLarge,
         fontFamily: theme.fonts.family.bold,
         color: theme.colors.primary,
         textAlign: "center",
     },
-
     subtitulo: {
         fontSize: theme.fonts.sizes.body,
         color: theme.colors.secondaryText,
         textAlign: "center",
         marginVertical: theme.spacing.large,
     },
-
     input: {
         backgroundColor: theme.colors.background,
         padding: theme.spacing.medium,
@@ -95,7 +115,6 @@ const styles = StyleSheet.create({
         marginBottom: theme.spacing.medium,
         color: theme.colors.text,
     },
-
     botao: {
         backgroundColor: theme.colors.primary,
         padding: theme.spacing.medium,
@@ -103,9 +122,18 @@ const styles = StyleSheet.create({
         alignItems: "center",
         marginTop: theme.spacing.medium,
     },
-
     botaoTexto: {
         color: theme.colors.paper,
+        fontFamily: theme.fonts.family.bold,
+        fontSize: theme.fonts.sizes.body,
+    },
+    botaoCadastro: {
+        padding: theme.spacing.medium,
+        alignItems: "center",
+        marginTop: theme.spacing.small,
+    },
+    botaoCadastroTexto: {
+        color: theme.colors.primary,
         fontFamily: theme.fonts.family.bold,
         fontSize: theme.fonts.sizes.body,
     },

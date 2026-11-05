@@ -24,8 +24,9 @@ export async function autenticarPessoa(
         id: number;
         nome: string;
         email: string;
+        senha: string;
     }>(
-        `SELECT id, nome, email
+        `SELECT id, nome, email, senha
          FROM pessoas
          WHERE email = ? AND senha = ?`,
         email.trim().toLowerCase(),

@@ -45,8 +45,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         await encerrarSessao(database);
                     }
                 }
-            } catch (error) {
-                console.error(error);
             } finally {
                 setCarregando(false);
             }
