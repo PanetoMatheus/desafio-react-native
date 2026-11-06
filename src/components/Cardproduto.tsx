@@ -48,10 +48,6 @@ export default function CardProduto({ produto }: Props) {
                 {produto.title}
             </Text>
 
-            <Text style={styles.categoria}>
-                {produto.category}
-            </Text>
-
             <Text style={styles.preco}>
                 {preco}
             </Text>
@@ -79,13 +75,6 @@ const styles = StyleSheet.create({
         fontSize: theme.fonts.sizes.body,
         fontFamily: theme.fonts.family.bold,
         color: theme.colors.text,
-    },
-
-    categoria: {
-        fontSize: theme.fonts.sizes.small,
-        color: theme.colors.secondaryText,
-        marginTop: theme.spacing.small,
-        fontFamily: theme.fonts.family.regular,
     },
 
     preco: {

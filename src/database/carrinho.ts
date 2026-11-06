@@ -15,22 +15,17 @@ export async function adicionarAoCarrinho(
     estoque: number
 ) {
     await database.runAsync(
-        `INSERT INTO carrinho (pessoa_id, produto_id, quantidade) VALUES (?, ?, ?) ON CONFLICT(pessoa_id, produto_id) DO UPDATE SET quantidade = MIN(quantidade + excluded.quantidade, ?)`,
-        pessoaId,
-        produtoId,
-        Math.min(quantidade, estoque),
-        estoque
+        `INSERT INTO carrinho (pessoa_id, produto_id, quantidade)VALUES (${pessoaId}, ${produtoId}, ${Math.min(quantidade, estoque)}) ON CONFLICT(pessoa_id, produto_id) DO UPDATE SET quantidade = MIN(quantidade + excluded.quantidade, ${estoque})`
     );
 }
 
-export async function removerDoCarrinho(
+export async function buscarCarrinho(
     database: SQLiteDatabase,
-    pessoaId: number,
-    produtoId: number
+    pessoaId: number
 ) {
-    await database.execAsync(`
-        DELETE FROM carrinho WHERE pessoa_id = ${pessoaId} AND produto_id = ${produtoId}
-    `);
+    return database.getAllAsync<{ produto_id: number; quantidade: number }>(
+        `SELECT produto_id, quantidade FROM carrinho WHERE pessoa_id = ${ pessoaId}`
+    );
 }
 
 export async function editarQuantidadeCarrinho(
@@ -39,7 +34,27 @@ export async function editarQuantidadeCarrinho(
     produtoId: number,
     quantidade: number
 ) {
-    await database.execAsync(`
-        UPDATE carrinho SET quantidade = ${quantidade} WHERE pessoa_id = ${pessoaId} AND produto_id = ${produtoId}
-    `);
+    await database.runAsync(
+        `UPDATE carrinho SET quantidade = ${quantidade} WHERE pessoa_id = ${pessoaId} AND produto_id = ${produtoId}`
+    );
+}
+
+export async function removerDoCarrinho(
+    database: SQLiteDatabase,
+    pessoaId: number,
+    produtoId: number
+) {
+    await database.runAsync(
+        `DELETE FROM carrinho WHERE pessoa_id = ${pessoaId} AND produto_id = ${produtoId}`,
+        
+    );
+}
+
+export async function limparCarrinho(
+    database: SQLiteDatabase,
+    pessoaId: number
+) {
+    await database.runAsync(
+        `DELETE FROM carrinho WHERE pessoa_id = ${pessoaId}`,
+    );
 }

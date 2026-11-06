@@ -1,6 +1,5 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import './../../global.css';
 export default function Layout() {
   return (
     <Tabs screenOptions={{ headerShown: false }}>
