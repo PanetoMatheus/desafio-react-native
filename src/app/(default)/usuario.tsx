@@ -9,6 +9,8 @@ import { router } from "expo-router";
 
 import { useAuth } from "./../../contexts/AuthContext";
 import { theme } from "./../../shared/themes/Theme";
+import Header from "../../components/Header";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
     const { usuario, sair, carregando } = useAuth();
@@ -26,6 +28,9 @@ export default function Index() {
     }
 
     return (
+        <>
+        <SafeAreaView />
+        <Header/>
         <View style={styles.container}>
             <View style={styles.card}>
                 <Text style={styles.titulo}>Minha conta</Text>
@@ -84,6 +89,7 @@ export default function Index() {
                 )}
             </View>
         </View>
+        </>
     );
 }
 

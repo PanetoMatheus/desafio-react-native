@@ -12,8 +12,7 @@ export async function iniciarSessao(
     pessoaId: number
 ) {
     await database.runAsync(
-        `INSERT OR REPLACE INTO sessao (id, pessoa_id)
-         VALUES (1, ?)`,
+        `INSERT OR REPLACE INTO sessao (id, pessoa_id) VALUES (1, ?)`,
         pessoaId
     );
 }

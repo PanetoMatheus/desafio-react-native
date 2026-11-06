@@ -7,8 +7,7 @@ export async function cadastrarPessoa(
     senha: string
 ) {
     await database.runAsync(
-        `INSERT INTO pessoas (nome, email, senha)
-         VALUES (?, ?, ?)`,
+        `INSERT INTO pessoas (nome, email, senha) VALUES (?, ?, ?)`,
         nome,
         email.trim().toLowerCase(),
         senha
@@ -26,9 +25,7 @@ export async function autenticarPessoa(
         email: string;
         senha: string;
     }>(
-        `SELECT id, nome, email, senha
-         FROM pessoas
-         WHERE email = ? AND senha = ?`,
+        `SELECT id, nome, email, senha FROM pessoas WHERE email = ? AND senha = ?`,
         email.trim().toLowerCase(),
         senha
     );

@@ -6,7 +6,6 @@ export async function initializeDatabase(database: SQLiteDatabase) {
 
         DROP TABLE IF EXISTS carrinho;
         DROP TABLE IF EXISTS sessao;
-        DROP TABLE IF EXISTS produtos;
         DROP TABLE IF EXISTS pessoas;
 
         PRAGMA foreign_keys = ON;
@@ -18,12 +17,6 @@ export async function initializeDatabase(database: SQLiteDatabase) {
             senha TEXT NOT NULL
         );
 
-        CREATE TABLE produtos (
-            id INTEGER PRIMARY KEY,
-            nome TEXT NOT NULL,
-            preco REAL NOT NULL CHECK (preco >= 0)
-        );
-
         CREATE TABLE carrinho (
             pessoa_id INTEGER NOT NULL,
             produto_id INTEGER NOT NULL,
@@ -33,10 +26,6 @@ export async function initializeDatabase(database: SQLiteDatabase) {
 
             FOREIGN KEY (pessoa_id)
                 REFERENCES pessoas(id)
-                ON DELETE CASCADE,
-
-            FOREIGN KEY (produto_id)
-                REFERENCES produtos(id)
                 ON DELETE CASCADE
         );
 

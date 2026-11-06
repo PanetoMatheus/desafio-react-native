@@ -7,6 +7,7 @@ import "./../global.css";
 import { SQLiteProvider } from "expo-sqlite";
 import { initializeDatabase } from "./../database/migrations";
 import { AuthProvider } from "./../contexts/AuthContext";
+import Header from '../components/Header';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -27,6 +28,7 @@ export default function RootLayout() {
     }
 
     return (
+        <>
         <SQLiteProvider databaseName="desafio-mobile.db" onInit={initializeDatabase}>
             <AuthProvider>
                 <Stack>
@@ -35,5 +37,6 @@ export default function RootLayout() {
                 </Stack>
             </AuthProvider>
         </SQLiteProvider>
+        </>
     );
 }
