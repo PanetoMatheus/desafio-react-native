@@ -6,6 +6,8 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { theme } from "../shared/themes/Theme";
+import { useSQLiteContext } from "expo-sqlite";
+import { buscarSessao } from "../database/sessao";
 
 type Produto = {
     id: number;
@@ -24,11 +26,17 @@ export default function CardProduto({ produto }: Props) {
         style: "currency",
         currency: "BRL",
     });
+    const database = useSQLiteContext();
+
+    const abrir = async () => {
+        const sessao = await buscarSessao(database);
+        router.push(sessao ? `/produtos/${produto.id}` : "/login");
+    };
 
     return (
         <Pressable
             style={styles.card}
-            onPress={() => router.push(`/produtos/${produto.id}`)}
+            onPress={abrir}
         >
             <Image
                 source={{ uri: produto.thumbnail }}

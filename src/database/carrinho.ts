@@ -1,13 +1,26 @@
 import { SQLiteDatabase } from "expo-sqlite";
+
+export async function obterPessoaLogadaId(database: SQLiteDatabase) {
+    const sessao = await database.getFirstAsync<{ pessoa_id: number }>(
+        `SELECT pessoa_id FROM sessao WHERE id = 1`
+    );
+    return sessao?.pessoa_id ?? null;
+}
+
 export async function adicionarAoCarrinho(
     database: SQLiteDatabase,
     pessoaId: number,
     produtoId: number,
-    quantidade: number
+    quantidade: number,
+    estoque: number
 ) {
-    await database.execAsync(`
-        INSERT OR REPLACE INTO carrinho (pessoa_id, produto_id, quantidade) VALUES (${pessoaId}, ${produtoId}, ${quantidade})
-    `);
+    await database.runAsync(
+        `INSERT INTO carrinho (pessoa_id, produto_id, quantidade) VALUES (?, ?, ?) ON CONFLICT(pessoa_id, produto_id) DO UPDATE SET quantidade = MIN(quantidade + excluded.quantidade, ?)`,
+        pessoaId,
+        produtoId,
+        Math.min(quantidade, estoque),
+        estoque
+    );
 }
 
 export async function removerDoCarrinho(

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
     ActivityIndicator,
+    Alert,
     Image,
     Pressable,
     ScrollView,
@@ -13,6 +14,11 @@ import { router, useLocalSearchParams } from "expo-router";
 import { getProduto } from "../../functions/api";
 import { theme } from "../../shared/themes/Theme";
 import Header from "../../components/Header";
+import { useSQLiteContext } from "expo-sqlite";
+import {
+    adicionarAoCarrinho,
+    obterPessoaLogadaId,
+} from "../../database/carrinho";
 
 type Produto = {
     id: number;
@@ -34,6 +40,43 @@ export default function ProdutoDetalhes() {
     const [produto, setProduto] = useState<Produto | null>(null);
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState(false);
+
+    const database = useSQLiteContext();
+const [quantidade, setQuantidade] = useState(1);
+const [adicionando, setAdicionando] = useState(false);
+
+const diminuir = () => setQuantidade((q) => Math.max(1, q - 1));
+const aumentar = () =>
+    setQuantidade((q) => Math.min(produto?.stock ?? 1, q + 1));
+
+    const adicionar = async () => {
+        if (!produto) return;
+
+        try {
+            setAdicionando(true);
+            const pessoaId = await obterPessoaLogadaId(database);
+            if (!pessoaId) {
+                Alert.alert("Atenção", "Faça login para adicionar ao carrinho.");
+                return;
+            }
+            await adicionarAoCarrinho(
+                database,
+                pessoaId,
+                produto.id,
+                quantidade,
+                produto.stock
+            );
+            Alert.alert(
+                "Pronto!",
+                `${quantidade}x ${produto.title} adicionado ao carrinho.`
+            );
+            setQuantidade(1);
+        } catch {
+            Alert.alert("Erro", "Não foi possível adicionar ao carrinho.");
+        } finally {
+            setAdicionando(false);
+        }
+    };
 
     const carregarProduto = async () => {
         setCarregando(true);
@@ -169,18 +212,55 @@ export default function ProdutoDetalhes() {
                         </View>
                     </View>
 
+                    {produto.stock > 0 && (
+                        <View style={styles.quantidadeContainer}>
+                            <Text style={styles.quantidadeLabel}>Quantidade</Text>
+
+                            <View style={styles.quantidadeControles}>
+                                <Pressable
+                                    style={[
+                                        styles.quantidadeBotao,
+                                        quantidade <= 1 && styles.botaoDesabilitado,
+                                    ]}
+                                    onPress={diminuir}
+                                    disabled={quantidade <= 1}
+                                >
+                                    <Text style={styles.quantidadeBotaoTexto}>−</Text>
+                                </Pressable>
+
+                                <Text style={styles.quantidadeValor}>{quantidade}</Text>
+
+                                <Pressable
+                                    style={[
+                                        styles.quantidadeBotao,
+                                        quantidade >= produto.stock && styles.botaoDesabilitado,
+                                    ]}
+                                    onPress={aumentar}
+                                    disabled={quantidade >= produto.stock}
+                                >
+                                    <Text style={styles.quantidadeBotaoTexto}>+</Text>
+                                </Pressable>
+                            </View>
+                        </View>
+                    )}
+
                     <Pressable
                         style={[
                             styles.botaoComprar,
-                            produto.stock <= 0 && styles.botaoDesabilitado,
+                            (produto.stock <= 0 || adicionando) && styles.botaoDesabilitado,
                         ]}
-                        disabled={produto.stock <= 0}
+                        disabled={produto.stock <= 0 || adicionando}
+                        onPress={adicionar}
                     >
-                        <Text style={styles.botaoComprarTexto}>
-                            {produto.stock > 0
-                                ? "Adicionar ao carrinho"
-                                : "Indisponível"}
-                        </Text>
+                        {adicionando ? (
+                            <ActivityIndicator color={theme.colors.paper} />
+                        ) : (
+                            <Text style={styles.botaoComprarTexto}>
+                                {produto.stock > 0
+                                    ? `Adicionar ao carrinho • ${preco(produto.price * quantidade)}`
+                                    : "Indisponível"}
+                            </Text>
+                        )}
                     </Pressable>
                 </View>
             </ScrollView>
@@ -386,4 +466,45 @@ const styles = StyleSheet.create({
         marginTop: theme.spacing.large,
         fontFamily: theme.fonts.family.bold,
     },
+    quantidadeContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: theme.spacing.large,
+},
+
+quantidadeLabel: {
+    color: theme.colors.text,
+    fontSize: theme.fonts.sizes.body,
+    fontFamily: theme.fonts.family.bold,
+},
+
+quantidadeControles: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: theme.spacing.medium,
+},
+
+quantidadeBotao: {
+    width: 36,
+    height: 36,
+    borderRadius: theme.corners.body,
+    backgroundColor: theme.colors.primary,
+    alignItems: "center",
+    justifyContent: "center",
+},
+
+quantidadeBotaoTexto: {
+    color: theme.colors.paper,
+    fontSize: theme.fonts.sizes.large,
+    fontFamily: theme.fonts.family.bold,
+},
+
+quantidadeValor: {
+    minWidth: 28,
+    textAlign: "center",
+    color: theme.colors.text,
+    fontSize: theme.fonts.sizes.large,
+    fontFamily: theme.fonts.family.bold,
+},
 });
