@@ -6,7 +6,6 @@ import {
     StyleSheet,
     Text,
     View,
-    Button,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getProdutos } from "../../functions/api";
@@ -48,12 +47,10 @@ export default function Home() {
     return (
         <SafeAreaView style={styles.container} edges={["top"]}>
             <Header />
+
             {carregando ? (
                 <View style={styles.centro}>
-                    <ActivityIndicator
-                        size="large"
-                        color={theme.colors.primary}
-                    />
+                    <ActivityIndicator size="large" color={theme.colors.primary} />
                 </View>
             ) : erro ? (
                 <View style={styles.centro}>
@@ -62,9 +59,7 @@ export default function Home() {
                     </Text>
 
                     <Pressable style={styles.botao} onPress={carregar}>
-                        <Text style={styles.botaoTexto}>
-                            Tentar novamente
-                        </Text>
+                        <Text style={styles.botaoTexto}>Tentar novamente</Text>
                     </Pressable>
                 </View>
             ) : (
@@ -74,9 +69,7 @@ export default function Home() {
                     numColumns={2}
                     columnWrapperStyle={styles.linha}
                     contentContainerStyle={styles.lista}
-                    renderItem={({ item }) => (
-                        <CardProduto produto={item} />
-                    )}
+                    renderItem={({ item }) => <CardProduto produto={item} />}
                 />
             )}
         </SafeAreaView>
@@ -88,14 +81,12 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: theme.colors.background,
     },
-
     centro: {
         flex: 1,
         alignItems: "center",
         justifyContent: "center",
         padding: theme.spacing.extraLarge,
     },
-
     erroTexto: {
         fontSize: theme.fonts.sizes.large,
         color: theme.colors.text,
@@ -103,23 +94,19 @@ const styles = StyleSheet.create({
         textAlign: "center",
         fontFamily: theme.fonts.family.regular,
     },
-
     botao: {
         backgroundColor: theme.colors.primary,
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: theme.corners.body,
     },
-
     botaoTexto: {
         color: theme.colors.primaryText,
         fontFamily: theme.fonts.family.bold,
     },
-
     lista: {
         padding: theme.spacing.medium,
     },
-
     linha: {
         justifyContent: "space-between",
     },
