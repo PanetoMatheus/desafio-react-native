@@ -19,6 +19,7 @@ import {
     adicionarAoCarrinho,
     obterPessoaLogadaId,
 } from "../../database/carrinho";
+import { salvarProdutoAcessado } from "../../database/produto";
 
 type Produto = {
     id: number;
@@ -85,6 +86,11 @@ const aumentar = () =>
         try {
             const data = await getProduto(id);
             setProduto(data);
+        await salvarProdutoAcessado(database, {
+            id: data.id,
+            nome: data.title,
+            preco: data.price,
+        });
         } catch {
             setErro(true);
         } finally {

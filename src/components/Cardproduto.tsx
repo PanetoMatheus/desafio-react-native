@@ -8,6 +8,7 @@ import { router } from "expo-router";
 import { theme } from "../shared/themes/Theme";
 import { useSQLiteContext } from "expo-sqlite";
 import { buscarSessao } from "../database/sessao";
+import { salvarProdutoAcessado } from "../database/produto";
 
 type Produto = {
     id: number;
@@ -27,6 +28,13 @@ export default function CardProduto({ produto }: Props) {
         currency: "BRL",
     });
     const database = useSQLiteContext();
+
+    const abrir = async () => {
+    await salvarProdutoAcessado(database, {
+        id: produto.id,
+        nome: produto.title,
+        preco: produto.price,
+    });
 
     const abrir = async () => {
         const sessao = await buscarSessao(database);
@@ -83,4 +91,5 @@ const styles = StyleSheet.create({
         color: theme.colors.primary,
         marginTop: theme.spacing.body,
     },
-});
+})
+}
