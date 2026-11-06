@@ -1,11 +1,14 @@
 import { SQLiteDatabase } from "expo-sqlite";
 
-export async function obterPessoaLogadaId(database: SQLiteDatabase) {
-    const sessao = await database.getFirstAsync<{ pessoa_id: number }>(
-        `SELECT pessoa_id FROM sessao WHERE id = 1`
-    );
-    return sessao?.pessoa_id ?? null;
-}
+export type ItemCarrinho = {
+    id: number;
+    title: string;
+    price: number;
+    imagem: string | null;
+    stock: number;
+    quantidade: number;
+    pendente: number;
+};
 
 export async function adicionarAoCarrinho(
     database: SQLiteDatabase,
@@ -15,16 +18,39 @@ export async function adicionarAoCarrinho(
     estoque: number
 ) {
     await database.runAsync(
-        `INSERT INTO carrinho (pessoa_id, produto_id, quantidade)VALUES (${pessoaId}, ${produtoId}, ${Math.min(quantidade, estoque)}) ON CONFLICT(pessoa_id, produto_id) DO UPDATE SET quantidade = MIN(quantidade + excluded.quantidade, ${estoque})`
+        `INSERT INTO carrinho (pessoa_id, produto_id, quantidade)
+         VALUES (?, ?, ?)
+         ON CONFLICT(pessoa_id, produto_id)
+         DO UPDATE SET quantidade = MIN(quantidade + excluded.quantidade, ?)`,
+        pessoaId,
+        produtoId,
+        Math.min(quantidade, estoque),
+        estoque
     );
 }
 
-export async function buscarCarrinho(
+export async function buscarCarrinhoCompleto(
     database: SQLiteDatabase,
     pessoaId: number
 ) {
-    return database.getAllAsync<{ produto_id: number; quantidade: number }>(
-        `SELECT produto_id, quantidade FROM carrinho WHERE pessoa_id = ${ pessoaId}`
+    return database.getAllAsync<ItemCarrinho>(
+        `SELECT
+            c.produto_id AS id,
+            p.nome AS title,
+            p.preco AS price,
+            p.imagem AS imagem,
+            COALESCE(p.estoque, c.quantidade) AS stock,
+            c.quantidade AS quantidade,
+            EXISTS (
+                SELECT 1 FROM operacoes_carrinho o
+                WHERE o.pessoa_id = c.pessoa_id
+                  AND o.produto_id = c.produto_id
+                  AND o.status = 'pendente'
+            ) AS pendente
+         FROM carrinho c
+         JOIN produtosAcessados p ON p.id = c.produto_id
+         WHERE c.pessoa_id = ?`,
+        pessoaId
     );
 }
 
@@ -35,7 +61,10 @@ export async function editarQuantidadeCarrinho(
     quantidade: number
 ) {
     await database.runAsync(
-        `UPDATE carrinho SET quantidade = ${quantidade} WHERE pessoa_id = ${pessoaId} AND produto_id = ${produtoId}`
+        `UPDATE carrinho SET quantidade = ? WHERE pessoa_id = ? AND produto_id = ?`,
+        quantidade,
+        pessoaId,
+        produtoId
     );
 }
 
@@ -45,8 +74,9 @@ export async function removerDoCarrinho(
     produtoId: number
 ) {
     await database.runAsync(
-        `DELETE FROM carrinho WHERE pessoa_id = ${pessoaId} AND produto_id = ${produtoId}`,
-        
+        `DELETE FROM carrinho WHERE pessoa_id = ? AND produto_id = ?`,
+        pessoaId,
+        produtoId
     );
 }
 
@@ -55,6 +85,7 @@ export async function limparCarrinho(
     pessoaId: number
 ) {
     await database.runAsync(
-        `DELETE FROM carrinho WHERE pessoa_id = ${pessoaId}`,
+        `DELETE FROM carrinho WHERE pessoa_id = ?`,
+        pessoaId
     );
 }

@@ -30,6 +30,7 @@ export default function CardProduto({ produto }: Props) {
             id: produto.id,
             nome: produto.title,
             preco: produto.price,
+            imagem: produto.thumbnail,
         });
 
         const sessao = await buscarSessao(database);

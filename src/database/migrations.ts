@@ -12,23 +12,25 @@ export async function initializeDatabase(database: SQLiteDatabase) {
         );
 
         CREATE TABLE IF NOT EXISTS sessao (
-            id integer PRIMARY KEY CHECK (id = 1),
-            pessoa_id integer NOT NULL,
+            id INTEGER PRIMARY KEY CHECK (id = 1),
+            pessoa_id INTEGER NOT NULL,
             FOREIGN KEY (pessoa_id) REFERENCES pessoas(id) ON DELETE CASCADE
         );
 
         CREATE TABLE IF NOT EXISTS carrinho (
-            pessoa_id integer NOT NULL,
-            produto_id integer NOT NULL,
-            quantidade integer NOT NULL DEFAULT 1,
+            pessoa_id INTEGER NOT NULL,
+            produto_id INTEGER NOT NULL,
+            quantidade INTEGER NOT NULL DEFAULT 1,
             PRIMARY KEY (pessoa_id, produto_id),
             FOREIGN KEY (pessoa_id) REFERENCES pessoas(id) ON DELETE CASCADE
         );
 
         CREATE TABLE IF NOT EXISTS produtosAcessados (
-            id integer PRIMARY KEY,
+            id INTEGER PRIMARY KEY,
             nome TEXT NOT NULL,
-            preco real NOT NULL
+            preco REAL NOT NULL,
+            imagem TEXT,
+            estoque INTEGER
         );
 
         CREATE TABLE IF NOT EXISTS operacoes_carrinho (

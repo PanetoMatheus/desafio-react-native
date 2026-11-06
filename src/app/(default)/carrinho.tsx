@@ -11,10 +11,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
-import { getProduto } from "../../functions/api";
 import { buscarSessao } from "./../../database/sessao";
 import {
-    buscarCarrinho,
+    buscarCarrinhoCompleto,
     editarQuantidadeCarrinho,
     limparCarrinho,
     removerDoCarrinho,
@@ -26,9 +25,10 @@ type Item = {
     id: number;
     title: string;
     price: number;
-    thumbnail: string;
+    imagem: string | null;
     stock: number;
     quantidade: number;
+    pendente: number;
 };
 
 export default function Carrinho() {
@@ -42,44 +42,28 @@ export default function Carrinho() {
     const preco = (valor: number) =>
         valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-    const carregar = async () => {
-        setCarregando(true);
-        setErro(false);
+const carregar = async () => {
+    setCarregando(true);
+    setErro(false);
 
-        try {
-            const sessao = await buscarSessao(database);
+    try {
+        const sessao = await buscarSessao(database);
 
-            if (!sessao) {
-                setPessoaId(null);
-                setItens([]);
-                return;
-            }
-
-            setPessoaId(sessao.pessoa_id);
-
-            const linhas = await buscarCarrinho(database, sessao.pessoa_id);
-
-            const lista = await Promise.all(
-                linhas.map(async (linha) => {
-                    const p = await getProduto(String(linha.produto_id));
-                    return {
-                        id: p.id,
-                        title: p.title,
-                        price: p.price,
-                        thumbnail: p.thumbnail,
-                        stock: p.stock,
-                        quantidade: linha.quantidade,
-                    };
-                })
-            );
-
-            setItens(lista);
-        } catch {
-            setErro(true);
-        } finally {
-            setCarregando(false);
+        if (!sessao) {
+            setPessoaId(null);
+            setItens([]);
+            return;
         }
-    };
+
+        setPessoaId(sessao.pessoa_id);
+        setItens(await buscarCarrinhoCompleto(database, sessao.pessoa_id));
+    } catch (e) {
+        console.log("ERRO CARRINHO:", e);
+        setErro(true);
+    } finally {
+        setCarregando(false);
+    }
+};
     useFocusEffect(
         useCallback(() => {
             carregar();
@@ -166,16 +150,20 @@ export default function Carrinho() {
                     contentContainerStyle={styles.lista}
                     renderItem={({ item }) => (
                         <View style={styles.card}>
-                            <Image
-                                source={{ uri: item.thumbnail }}
-                                style={styles.imagem}
-                                resizeMode="contain"
-                            />
+                            {!!item.imagem && (
+                                <Image
+                                    source={{ uri: item.imagem }}
+                                    style={styles.imagem}
+                                    resizeMode="contain"
+                                />
+                            )}
 
                             <View style={styles.info}>
-                                <Text style={styles.nome} numberOfLines={2}>
-                                    {item.title}
-                                </Text>
+                                <Text style={styles.nome} numberOfLines={2}>{item.title}</Text>
+
+                                {!!item.pendente && (
+                                    <Text style={styles.mensagem}>Aguardando sincronização</Text>
+                                )}
 
                                 <Text style={styles.preco}>
                                     {preco(item.price * item.quantidade)}

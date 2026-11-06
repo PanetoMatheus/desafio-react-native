@@ -17,7 +17,6 @@ export async function adicionarAoCarrinhoComSync(
 ): Promise<"sincronizado" | "pendente"> {
     const qtd = Math.min(quantidade, estoque);
     let status: "sincronizado" | "pendente" = "pendente";
-
     if (await estaOnline()) {
         try {
             const aceito = await addNoCarrinho(pessoaId, produtoId, qtd);
@@ -46,7 +45,7 @@ export async function adicionarAoCarrinhoComSync(
 let sincronizando = false;
 
 export async function sincronizarPendentes(database: SQLiteDatabase) {
-    if (sincronizando) return;
+    if (sincronizando) return; 
     sincronizando = true;
 
     try {
@@ -69,7 +68,6 @@ export async function sincronizarPendentes(database: SQLiteDatabase) {
                     op.produto_id,
                     op.quantidade
                 );
-
                 await database.runAsync(
                     `UPDATE operacoes_carrinho
                      SET status = ?, sincronizado_em = datetime('now')

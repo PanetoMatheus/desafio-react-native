@@ -17,9 +17,10 @@ import Header from "../../components/Header";
 import { useSQLiteContext } from "expo-sqlite";
 import {
     adicionarAoCarrinho,
-    obterPessoaLogadaId,
 } from "../../database/carrinho";
-import { salvarProdutoAcessado } from "../../database/produto";
+import { buscarProdutoAcessado, salvarProdutoAcessado } from "../../database/produto";
+import { buscarSessao } from "../../database/sessao";
+import { adicionarAoCarrinhoComSync } from "../../functions/sincronizar";
 
 type Produto = {
     id: number;
@@ -55,24 +56,29 @@ const aumentar = () =>
 
         try {
             setAdicionando(true);
-            const pessoaId = await obterPessoaLogadaId(database);
-            if (!pessoaId) {
+
+            const sessao = await buscarSessao(database);
+            if (!sessao) {
                 Alert.alert("Atenção", "Faça login para adicionar ao carrinho.");
                 return;
             }
-            await adicionarAoCarrinho(
+
+            const status = await adicionarAoCarrinhoComSync(
                 database,
-                pessoaId,
+                sessao.pessoa_id,
                 produto.id,
                 quantidade,
                 produto.stock
             );
+
             Alert.alert(
-                "Pronto!",
-                `${quantidade}x ${produto.title} adicionado ao carrinho.`
+                status === "sincronizado" ? "Pronto!" : "Salvo offline",
+                status === "sincronizado"
+                    ? `${quantidade}x ${produto.title} adicionado ao carrinho.`
+                    : `${quantidade}x ${produto.title} no carrinho. Será enviado quando houver internet.`
             );
             setQuantidade(1);
-        } catch {
+        } catch (e) {
             Alert.alert("Erro", "Não foi possível adicionar ao carrinho.");
         } finally {
             setAdicionando(false);
@@ -85,14 +91,38 @@ const aumentar = () =>
 
         try {
             const data = await getProduto(id);
-            setProduto(data);
-        await salvarProdutoAcessado(database, {
-            id: data.id,
-            nome: data.title,
-            preco: data.price,
-        });
+            setProduto({ ...data, stock: Number(data.stock ?? 0) });
+
+            try {
+                await salvarProdutoAcessado(database, {
+                    id: data.id,
+                    nome: data.title,
+                    preco: data.price,
+                    imagem: data.thumbnail,
+                    estoque: data.stock,
+                });
+            } catch (e) {
+            }
         } catch {
-            setErro(true);
+            const local = await buscarProdutoAcessado(database, Number(id));
+
+            if (local) {
+                setProduto({
+                    id: local.id,
+                    title: local.nome,
+                    price: local.preco,
+                    thumbnail: local.imagem ?? "",
+                    stock: local.estoque ?? 99,
+                    description: "Descrição indisponível offline.",
+                    discountPercentage: 0,
+                    rating: 0,
+                    brand: "",
+                    category: "",
+                    images: [],
+                });
+            } else {
+                setErro(true);
+            }
         } finally {
             setCarregando(false);
         }
@@ -211,12 +241,14 @@ const aumentar = () =>
                             </Text>
                         </View>
 
+                    {produto.discountPercentage > 0 && (
                         <View style={styles.desconto}>
                             <Text style={styles.descontoTexto}>
                                 {produto.discountPercentage.toFixed(0)}% OFF
                             </Text>
                         </View>
-                    </View>
+                    )}
+                            </View>
 
                     {produto.stock > 0 && (
                         <View style={styles.quantidadeContainer}>
