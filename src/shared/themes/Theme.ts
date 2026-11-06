@@ -4,7 +4,6 @@ export const theme = {
         paper: '#FFFFFF',
         text: '#222222',
         primary: '#1e5139',
-        alert: '#ffff00',
         primaryText: '#FFFFFF',
         correct: '#32ca88',
         wrong: '#ff4548',
