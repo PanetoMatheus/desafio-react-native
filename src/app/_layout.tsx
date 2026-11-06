@@ -46,7 +46,7 @@ export default function RootLayout() {
     }
 
     return (
-        <SQLiteProvider databaseName="desafio-mobile.db1" onInit={initializeDatabase}>
+        <SQLiteProvider databaseName="desafio-mobile.db0" onInit={initializeDatabase}>
             <AuthProvider>
                 <Sincronizador />
                 <Stack>
